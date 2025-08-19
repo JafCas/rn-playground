@@ -1,75 +1,122 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Image } from "expo-image";
+import { StyleSheet, View } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { useEffect, useState } from "react";
+
+type Pokemon = {
+  name: string;
+  url: string;
+};
+
+type PokemonData = {
+  sprites: Sprite;
+};
+
+type Sprite = {
+  front_default: string | null;
+  front_shiny: string | null;
+};
 
 export default function HomeScreen() {
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]); // *
+  const [sprites, setSprites] = useState<Sprite[]>([]);
+
+  const uris: string[] = [
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
+  ];
+
+  // Fetch images
+  const fetchPokemons = async (): Promise<Pokemon[]> => {
+    const limit = 10;
+    const offset = 0;
+    const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const result = await response.json(); // TODO: Add resultType
+      const pokemons: Pokemon[] = result.results;
+      return pokemons;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  };
+
+  const fetchImagen = async (name: string): Promise<Sprite> => {
+    const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const result: PokemonData = await response.json();
+      const sprites: Sprite = result.sprites;
+      const { front_default, front_shiny } = sprites;
+      return { front_default, front_shiny };
+    } catch (error) {
+      console.error(error);
+    }
+    return { front_default: null, front_shiny: null };
+  };
+
+  useEffect(() => {
+    (async () => {
+      const pokemons = await fetchPokemons();
+      setPokemons(pokemons);
+
+      // Use Promise.all with map to maintain order and wait for all requests
+      const pokemonSprites = await Promise.all(
+        pokemons.map(async (pokemon, index) => {
+          const sprite = await fetchImagen(pokemon.name);
+          return sprite;
+        })
+      );
+
+      setSprites(pokemonSprites);
+    })();
+  }, []);
+
+  useEffect(() => {
+    console.log(sprites.length);
+  }, [sprites]);
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require("@/assets/images/partial-react-logo.png")}
           style={styles.reactLogo}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      }
+    >
+      {sprites.map((sprite, index) => (
+        <View key={`ditto ${index}`} style={{ backgroundColor: "red" }}>
+          <Image source={sprite.front_shiny} style={styles.image} />
+        </View>
+      ))}
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
   reactLogo: {
     height: 178,
     width: 290,
     bottom: 0,
     left: 0,
-    position: 'absolute',
+    position: "absolute",
+  },
+  image: {
+    width: 120,
+    height: 120,
   },
 });
