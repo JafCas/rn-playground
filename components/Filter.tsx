@@ -1,3 +1,4 @@
+import { SkeuomorphicStyles, createSkeuomorphicStyle } from "@/utils/skeuomorphicStyles";
 import React, { useState } from "react";
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FilterType } from "./TaskManagement";
@@ -88,68 +89,98 @@ const Filter: React.FC<FilterProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minWidth: 120,
+    minWidth: 130,
   },
   label: {
+    // Apply skeuomorphic label styling
+    ...SkeuomorphicStyles.presets.labelText,
     fontSize: 14,
-    fontWeight: "500",
-    color: "#333",
-    marginBottom: 4,
+    marginBottom: 6,
   },
   dropdownButton: {
+    // Apply skeuomorphic raised button styling
+    ...createSkeuomorphicStyle.raised("#ffffff", 10),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    minHeight: 44,
+    // Enhanced shadow for button prominence
+    shadowOpacity: 0.18,
+    // Multi-layered border effect
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    minHeight: 40,
+    borderTopColor: SkeuomorphicStyles.colors.light.primary,
+    borderLeftColor: SkeuomorphicStyles.colors.light.secondary,
+    borderRightColor: SkeuomorphicStyles.colors.dark.primary,
+    borderBottomColor: SkeuomorphicStyles.colors.dark.secondary,
   },
   dropdownText: {
     fontSize: 14,
-    color: "#333",
+    color: SkeuomorphicStyles.colors.text.primary,
+    fontWeight: "500",
     flex: 1,
+    // Subtle text shadow
+    ...SkeuomorphicStyles.textShadows.embossed,
   },
   dropdownArrow: {
     fontSize: 12,
-    color: "#666",
+    color: SkeuomorphicStyles.colors.text.secondary,
+    fontWeight: "bold",
+    // Shadow for depth
+    textShadowColor: "rgba(255, 255, 255, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 0,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
     backgroundColor: "#fff",
-    borderRadius: 8,
-    minWidth: 200,
+    borderRadius: 12,
+    minWidth: 220,
     maxHeight: 300,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    // Enhanced skeuomorphic modal shadow
+    ...SkeuomorphicStyles.shadows.large,
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    // Multi-layered border for depth
+    borderWidth: 1,
+    borderTopColor: SkeuomorphicStyles.colors.light.primary,
+    borderLeftColor: SkeuomorphicStyles.colors.light.secondary,
+    borderRightColor: SkeuomorphicStyles.colors.dark.primary,
+    borderBottomColor: SkeuomorphicStyles.colors.dark.secondary,
   },
   optionItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: SkeuomorphicStyles.colors.light.tertiary,
+    // Subtle inset effect for options
+    backgroundColor: "#fafafa",
   },
   selectedOption: {
-    backgroundColor: "#007AFF",
+    backgroundColor: SkeuomorphicStyles.colors.accent,
+    // Inner shadow effect for selected state
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.1)",
+    borderLeftColor: "rgba(0, 0, 0, 0.1)",
   },
   optionText: {
     fontSize: 14,
-    color: "#333",
+    color: SkeuomorphicStyles.colors.text.primary,
+    fontWeight: "500",
+    // Embossed text effect
+    ...SkeuomorphicStyles.textShadows.embossed,
   },
   selectedOptionText: {
-    color: "#fff",
-    fontWeight: "500",
+    color: SkeuomorphicStyles.colors.text.white,
+    fontWeight: "600",
+    // Engraved text effect for selected
+    ...SkeuomorphicStyles.textShadows.engraved,
   },
 });
 

@@ -1,3 +1,4 @@
+import { SkeuomorphicStyles, createSkeuomorphicStyle } from "@/utils/skeuomorphicStyles";
 import React from "react";
 import { StyleSheet, Switch, Text, View } from "react-native";
 import { SortType } from "./TaskManagement";
@@ -51,9 +52,12 @@ const Sort: React.FC<SortProps> = ({
         <Switch
           value={currentSort !== "none"}
           onValueChange={handleSortToggle}
-          trackColor={{ false: "#ddd", true: "#007AFF" }}
-          thumbColor={currentSort !== "none" ? "#fff" : "#f4f4f4"}
-          ios_backgroundColor="#ddd"
+          trackColor={{ 
+            false: SkeuomorphicStyles.colors.light.tertiary, 
+            true: SkeuomorphicStyles.colors.accent 
+          }}
+          thumbColor={currentSort !== "none" ? "#fff" : "#f8f8f8"}
+          ios_backgroundColor={SkeuomorphicStyles.colors.light.tertiary}
         />
       </View>
     </View>
@@ -63,30 +67,39 @@ const Sort: React.FC<SortProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minWidth: 120,
+    minWidth: 130,
   },
   label: {
+    // Apply skeuomorphic label styling
+    ...SkeuomorphicStyles.presets.labelText,
     fontSize: 14,
-    fontWeight: "500",
-    color: "#333",
-    marginBottom: 4,
+    marginBottom: 6,
   },
   switchContainer: {
+    // Apply skeuomorphic raised surface styling
+    ...createSkeuomorphicStyle.raised("#ffffff", 10),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    minHeight: 44,
+    // Enhanced shadow for container prominence
+    shadowOpacity: 0.18,
+    // Multi-layered border effect
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    minHeight: 40,
+    borderTopColor: SkeuomorphicStyles.colors.light.primary,
+    borderLeftColor: SkeuomorphicStyles.colors.light.secondary,
+    borderRightColor: SkeuomorphicStyles.colors.dark.primary,
+    borderBottomColor: SkeuomorphicStyles.colors.dark.secondary,
   },
   sortLabel: {
     fontSize: 14,
-    color: "#333",
+    color: SkeuomorphicStyles.colors.text.primary,
+    fontWeight: "500",
     flex: 1,
+    // Subtle embossed text effect
+    ...SkeuomorphicStyles.textShadows.embossed,
   },
 });
 

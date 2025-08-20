@@ -6,6 +6,7 @@ import { Task, TaskList } from "@/components/Task";
 import { TaskInput } from "@/components/TaskInput";
 import { TaskManagement } from "@/components/TaskManagement";
 import { useTaskStorage } from "@/hooks/useTaskStorage";
+import { SkeuomorphicStyles } from "@/utils/skeuomorphicStyles";
 import { getTaskStats } from "@/utils/taskUtils";
 
 export default function HomeScreen() {
@@ -81,33 +82,57 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f0f2f5", // Slightly warmer background
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    // Add skeuomorphic loading container
+    ...SkeuomorphicStyles.presets.surface,
+    marginHorizontal: 20,
+    marginVertical: 40,
+    borderRadius: 16,
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: 16,
     fontSize: 16,
-    color: "#666",
+    color: SkeuomorphicStyles.colors.text.secondary,
+    // Add subtle text styling
+    ...SkeuomorphicStyles.presets.subtitleText,
   },
   header: {
-    padding: 20,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    // Apply skeuomorphic header preset
+    ...SkeuomorphicStyles.presets.header,
+    // Override margin to remove default spacing
+    marginHorizontal: 0,
+    marginVertical: 0,
+    borderRadius: 0,
+    // Add subtle bottom border for separation
+    borderBottomWidth: 2,
+    borderBottomColor: SkeuomorphicStyles.colors.light.tertiary,
+    // Enhanced shadow for header prominence
+    ...SkeuomorphicStyles.shadows.large,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
+    // Apply skeuomorphic title styling
+    ...SkeuomorphicStyles.presets.titleText,
+    marginBottom: 8,
+    // Enhanced text shadow for prominence
+    textShadowColor: "rgba(0, 0, 0, 0.15)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 3,
   },
   subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginTop: 4,
+    // Apply skeuomorphic subtitle styling  
+    ...SkeuomorphicStyles.presets.subtitleText,
+    marginBottom: 16,
+    // Subtle inset text effect
+    textShadowColor: "rgba(255, 255, 255, 0.9)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 0,
   },
   scrollView: {
     flex: 0,

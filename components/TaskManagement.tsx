@@ -1,7 +1,8 @@
+import { SkeuomorphicStyles } from "@/utils/skeuomorphicStyles";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import FilterComponent from "./Filter";
-import SortComponent from "./Sort";
+import Filter from "./Filter";
+import Sort from "./Sort";
 import { Task } from "./Task";
 
 export type FilterType = "all" | "completed" | "incomplete";
@@ -75,12 +76,12 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
     <View style={styles.container}>
       <Text style={styles.title}>Task Management</Text>
       <View style={styles.controlsContainer}>
-        <FilterComponent
+        <Filter
           currentFilter={currentFilter}
           onFilterChange={handleFilterChange}
           taskCount={tasks.length}
         />
-        <SortComponent
+        <Sort
           currentSort={currentSort}
           onSortChange={handleSortChange}
         />
@@ -91,18 +92,30 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    // Apply skeuomorphic surface styling
+    ...SkeuomorphicStyles.presets.surface,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    // Enhanced shadow for management section
+    ...SkeuomorphicStyles.shadows.medium,
   },
   title: {
+    // Apply skeuomorphic label text styling
+    ...SkeuomorphicStyles.presets.labelText,
     fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 12,
+    marginBottom: 16,
+    textAlign: "center",
+    // Enhanced embossed effect
+    textShadowColor: "rgba(255, 255, 255, 0.9)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   controlsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-end",
     gap: 16,
   },
 });

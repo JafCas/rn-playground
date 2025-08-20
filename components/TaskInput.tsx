@@ -1,3 +1,7 @@
+import {
+    SkeuomorphicStyles,
+    createSkeuomorphicStyle,
+} from "@/utils/skeuomorphicStyles";
 import { isValidTaskName } from "@/utils/taskUtils";
 import React, { useState } from "react";
 import {
@@ -20,6 +24,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({
   tasksCount,
 }) => {
   const [inputValue, setInputValue] = useState("");
+  const [isButtonPressed, setIsButtonPressed] = useState(false);
 
   const handleSubmit = () => {
     const trimmedValue = inputValue.trim();
@@ -42,19 +47,37 @@ export const TaskInput: React.FC<TaskInputProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={handleQuickAdd} style={styles.quickAddButton}>
-        <Text style={styles.quickAddText}>Add Quick Task</Text>
-      </TouchableOpacity>
+      <View style={styles.rowContainer}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Add New Task"
+            value={inputValue}
+            onChangeText={setInputValue}
+            onSubmitEditing={handleSubmit}
+            returnKeyType="done"
+          />
+        </View>
+        <Text
+          style={[
+            styles.quickAddText,
+            { color: SkeuomorphicStyles.colors.text.secondary },
+          ]}
+        >
+          Or
+        </Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Add New Task"
-          value={inputValue}
-          onChangeText={setInputValue}
-          onSubmitEditing={handleSubmit}
-          returnKeyType="done"
-        />
+        <TouchableOpacity
+          onPress={handleQuickAdd}
+          onPressIn={() => setIsButtonPressed(true)}
+          onPressOut={() => setIsButtonPressed(false)}
+          style={[
+            styles.quickAddButton,
+            isButtonPressed && styles.quickAddButtonPressed,
+          ]}
+        >
+          <Text style={styles.quickAddText}>Quick Add</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -62,31 +85,48 @@ export const TaskInput: React.FC<TaskInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: "24%",
-    marginTop: 20,
+    height: "17%",
+    marginTop: 4,
     padding: 16,
   },
-  quickAddButton: {
-    backgroundColor: "#007AFF",
-    padding: 12,
-    borderRadius: 8,
+  rowContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
-  },
-  quickAddText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "500",
+    gap: 12,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
+    ...SkeuomorphicStyles.shadows.medium,
+    ...SkeuomorphicStyles.borders.raised,
   },
   inputContainer: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    backgroundColor: "#fff",
+    flex: 1,
+    ...createSkeuomorphicStyle.inset("#f8f9fa", 8),
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   textInput: {
-    padding: 12,
     fontSize: 16,
+    color: SkeuomorphicStyles.colors.text.primary,
+    fontWeight: "500",
+  },
+  quickAddButton: {
+    ...createSkeuomorphicStyle.raised(SkeuomorphicStyles.colors.accent, 8),
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 90,
+  },
+  quickAddButtonPressed: {
+    ...SkeuomorphicStyles.shadows.pressed,
+    transform: [{ translateY: 1 }],
+  },
+  quickAddText: {
+    color: SkeuomorphicStyles.colors.text.white,
+    fontSize: 14,
+    fontWeight: "600",
+    ...SkeuomorphicStyles.textShadows.subtle,
   },
 });
 
