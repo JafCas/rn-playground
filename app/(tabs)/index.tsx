@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import { TaskList } from "@/components/Task";
+import { Task, TaskList } from "@/components/Task";
 import { TaskInput } from "@/components/TaskInput";
+import { TaskManagement } from "@/components/TaskManagement";
 import { useTaskStorage } from "@/hooks/useTaskStorage";
 import { getTaskStats } from "@/utils/taskUtils";
 
@@ -16,7 +17,19 @@ export default function HomeScreen() {
     removeTask,
   } = useTaskStorage();
 
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+
+  // Initialize filtered tasks when tasks change
+  React.useEffect(() => {
+    if (filteredTasks.length === 0) {
+      setFilteredTasks(tasks);
+    }
+  }, [tasks, filteredTasks.length]);
+
   const taskStats = getTaskStats(tasks);
+  
+  // Use filtered tasks for display, fallback to all tasks if no filter applied
+  const displayTasks = filteredTasks.length === 0 && tasks.length > 0 ? tasks : filteredTasks;
 
   if (isLoading) {
     return (
@@ -42,11 +55,15 @@ export default function HomeScreen() {
               : `${taskStats.completed} of ${taskStats.total} completed (${taskStats.completionRate}%)`
             }
           </Text>
+          <TaskManagement
+            tasks={tasks}
+            onFilteredTasksChange={setFilteredTasks}
+          />
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <TaskList
-            tasks={tasks}
+            tasks={displayTasks}
             onToggleTask={toggleTask}
             onRemoveTask={removeTask}
           />
