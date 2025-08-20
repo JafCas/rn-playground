@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { Task, TaskList } from "@/components/Task";
@@ -10,13 +16,8 @@ import { SkeuomorphicStyles } from "@/utils/skeuomorphicStyles";
 import { getTaskStats } from "@/utils/taskUtils";
 
 export default function HomeScreen() {
-  const {
-    tasks,
-    isLoading,
-    addTask,
-    toggleTask,
-    removeTask,
-  } = useTaskStorage();
+  const { tasks, isLoading, addTask, toggleTask, removeTask } =
+    useTaskStorage();
 
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
 
@@ -28,9 +29,10 @@ export default function HomeScreen() {
   }, [tasks, filteredTasks.length]);
 
   const taskStats = getTaskStats(tasks);
-  
+
   // Use filtered tasks for display, fallback to all tasks if no filter applied
-  const displayTasks = filteredTasks.length === 0 && tasks.length > 0 ? tasks : filteredTasks;
+  const displayTasks =
+    filteredTasks.length === 0 && tasks.length > 0 ? tasks : filteredTasks;
 
   if (isLoading) {
     return (
@@ -49,20 +51,24 @@ export default function HomeScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>My Tasks</Text>
-          <Text style={styles.subtitle}>
-            {taskStats.total === 0 
-              ? "No tasks yet" 
-              : `${taskStats.completed} of ${taskStats.total} completed (${taskStats.completionRate}%)`
-            }
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <Text style={styles.title}>My Tasks</Text>
+            <Text style={styles.subtitle}>
+              {taskStats.total === 0
+                ? "No tasks yet"
+                : `${taskStats.completed} of ${taskStats.total} completed (${taskStats.completionRate}%)`}
+            </Text>
+          </View>
           <TaskManagement
             tasks={tasks}
             onFilteredTasksChange={setFilteredTasks}
           />
         </View>
 
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <TaskList
             tasks={displayTasks}
             onToggleTask={toggleTask}
@@ -70,10 +76,7 @@ export default function HomeScreen() {
           />
         </ScrollView>
 
-        <TaskInput
-          onAddTask={addTask}
-          tasksCount={tasks.length}
-        />
+        <TaskInput onAddTask={addTask} tasksCount={tasks.length} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
   subtitle: {
-    // Apply skeuomorphic subtitle styling  
+    // Apply skeuomorphic subtitle styling
     ...SkeuomorphicStyles.presets.subtitleText,
     marginBottom: 16,
     // Subtle inset text effect

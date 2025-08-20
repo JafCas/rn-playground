@@ -1,6 +1,6 @@
 import { SkeuomorphicStyles } from "@/utils/skeuomorphicStyles";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Filter from "./Filter";
 import Sort from "./Sort";
 import { Task } from "./Task";
@@ -20,42 +20,45 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
   const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
   const [currentSort, setCurrentSort] = useState<SortType>("none");
 
-  const applyFilterAndSort = React.useCallback((filter: FilterType, sort: SortType) => {
-    let filteredTasks = [...tasks];
+  const applyFilterAndSort = React.useCallback(
+    (filter: FilterType, sort: SortType) => {
+      let filteredTasks = [...tasks];
 
-    // Apply filter
-    switch (filter) {
-      case "completed":
-        filteredTasks = filteredTasks.filter(task => task.completed);
-        break;
-      case "incomplete":
-        filteredTasks = filteredTasks.filter(task => !task.completed);
-        break;
-      case "all":
-      default:
-        // Show all tasks
-        break;
-    }
+      // Apply filter
+      switch (filter) {
+        case "completed":
+          filteredTasks = filteredTasks.filter((task) => task.completed);
+          break;
+        case "incomplete":
+          filteredTasks = filteredTasks.filter((task) => !task.completed);
+          break;
+        case "all":
+        default:
+          // Show all tasks
+          break;
+      }
 
-    // Apply sort
-    switch (sort) {
-      case "name":
-        filteredTasks.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "status":
-        filteredTasks.sort((a, b) => {
-          if (a.completed === b.completed) return 0;
-          return a.completed ? 1 : -1; // Incomplete tasks first
-        });
-        break;
-      case "none":
-      default:
-        // Keep original order
-        break;
-    }
+      // Apply sort
+      switch (sort) {
+        case "name":
+          filteredTasks.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case "status":
+          filteredTasks.sort((a, b) => {
+            if (a.completed === b.completed) return 0;
+            return a.completed ? 1 : -1; // Incomplete tasks first
+          });
+          break;
+        case "none":
+        default:
+          // Keep original order
+          break;
+      }
 
-    onFilteredTasksChange(filteredTasks);
-  }, [tasks, onFilteredTasksChange]);
+      onFilteredTasksChange(filteredTasks);
+    },
+    [tasks, onFilteredTasksChange]
+  );
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);
@@ -74,17 +77,13 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Task Management</Text>
       <View style={styles.controlsContainer}>
         <Filter
           currentFilter={currentFilter}
           onFilterChange={handleFilterChange}
           taskCount={tasks.length}
         />
-        <Sort
-          currentSort={currentSort}
-          onSortChange={handleSortChange}
-        />
+        <Sort currentSort={currentSort} onSortChange={handleSortChange} />
       </View>
     </View>
   );
@@ -96,7 +95,7 @@ const styles = StyleSheet.create({
     ...SkeuomorphicStyles.presets.surface,
     paddingVertical: 16,
     paddingHorizontal: 16,
-    marginTop: 16,
+    marginTop: 4,
     borderRadius: 12,
     // Enhanced shadow for management section
     ...SkeuomorphicStyles.shadows.medium,
