@@ -1,99 +1,99 @@
-import React, { useEffect, useState } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import React from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-type Task = {
-  name: string;
-  completed: boolean;
-};
+import { TaskList } from "@/components/Task";
+import { TaskInput } from "@/components/TaskInput";
+import { useTaskStorage } from "@/hooks/useTaskStorage";
+import { getTaskStats } from "@/utils/taskUtils";
 
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const {
+    tasks,
+    isLoading,
+    addTask,
+    toggleTask,
+    removeTask,
+  } = useTaskStorage();
 
-  const TASK = "TASKS";
+  const taskStats = getTaskStats(tasks);
 
-  const taskStatus = (completed: boolean): string => {
-    return completed ? "Completed" : "Incomplete";
-  };
-
-  const handleAddTask = async (name: string) => {
-    setTasks((prevTasks) => [...prevTasks, { name, completed: false }]);
-    await storeTasks([...tasks, { name, completed: false }]);
-  };
-
-  const handleToggleTask = async (index: number) => {
-    const updatedTasks = tasks.map((task, i) =>
-      i === index ? { ...task, completed: !task.completed } : task
+  if (isLoading) {
+    return (
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text style={styles.loadingText}>Loading tasks...</Text>
+          </View>
+        </SafeAreaView>
+      </SafeAreaProvider>
     );
-    setTasks(updatedTasks);
-    await storeTasks(updatedTasks);
-  };
-
-  const handleRemoveTask = async (index: number) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-    await storeTasks(updatedTasks);
-  };
-
-  const storeTasks = async (tasks: Task[]) => {
-    try {
-      const jsonValue = JSON.stringify(tasks);
-      await AsyncStorage.setItem(TASK, jsonValue);
-    } catch (e) {
-      // saving error
-      console.error("Error saving tasks:", e);
-    }
-  };
-
-  const getTasks = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem(TASK);
-      return jsonValue != null ? JSON.parse(jsonValue) : [];
-    } catch (e) {
-      // error reading value
-      console.error("Error reading tasks:", e);
-      return [];
-    }
-  };
-
-  useEffect(() => {
-    (async () => {
-      const storedTasks = await getTasks();
-      if (storedTasks.length > 0) {
-        setTasks(storedTasks);
-      }
-    })();
-  }, []);
+  }
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        {/* Tasks List */}
-        {tasks.map((task, index) => (
-          <View key={index} style={{ padding: 10, borderBottomWidth: 1 }}>
-            <Text>{task.name}</Text>
-            <Text>{`Is: ${taskStatus(task.completed)}`}</Text>
-            <Button
-              title={task.completed ? "Undo" : "Complete"}
-              onPress={() => handleToggleTask(index)}
-            />
-            <Button title="Remove" onPress={() => handleRemoveTask(index)} />
-          </View>
-        ))}
-
-        {/* Input for new tasks */}
-        <View style={{ marginTop: 20 }}>
-          <Text onPress={() => handleAddTask(`Task ${tasks.length + 1}`)}>
-            Add Task
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>My Tasks</Text>
+          <Text style={styles.subtitle}>
+            {taskStats.total === 0 
+              ? "No tasks yet" 
+              : `${taskStats.completed} of ${taskStats.total} completed (${taskStats.completionRate}%)`
+            }
           </Text>
-          <TextInput
-            placeholder="Add New Task"
-            onSubmitEditing={(event) => handleAddTask(event.nativeEvent.text)}
-          />
         </View>
+
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <TaskList
+            tasks={tasks}
+            onToggleTask={toggleTask}
+            onRemoveTask={removeTask}
+          />
+        </ScrollView>
+
+        <TaskInput
+          onAddTask={addTask}
+          tasksCount={tasks.length}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#666",
+  },
+  header: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 4,
+  },
+  scrollView: {
+    flex: 0,
+    backgroundColor: "#fff",
+  },
+});
