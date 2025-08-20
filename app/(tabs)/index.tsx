@@ -1,122 +1,99 @@
-import { Image } from "expo-image";
-import { StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Button, Text, TextInput, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type Pokemon = {
+type Task = {
   name: string;
-  url: string;
-};
-
-type PokemonData = {
-  sprites: Sprite;
-};
-
-type Sprite = {
-  front_default: string | null;
-  front_shiny: string | null;
+  completed: boolean;
 };
 
 export default function HomeScreen() {
-  const [pokemons, setPokemons] = useState<Pokemon[]>([]); // *
-  const [sprites, setSprites] = useState<Sprite[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  const uris: string[] = [
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/132.png",
-  ];
+  const TASK = "TASKS";
 
-  // Fetch images
-  const fetchPokemons = async (): Promise<Pokemon[]> => {
-    const limit = 10;
-    const offset = 0;
-    const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const result = await response.json(); // TODO: Add resultType
-      const pokemons: Pokemon[] = result.results;
-      return pokemons;
-    } catch (error) {
-      console.error(error);
-    }
-    return [];
+  const taskStatus = (completed: boolean): string => {
+    return completed ? "Completed" : "Incomplete";
   };
 
-  const fetchImagen = async (name: string): Promise<Sprite> => {
-    const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
+  const handleAddTask = async (name: string) => {
+    setTasks((prevTasks) => [...prevTasks, { name, completed: false }]);
+    await storeTasks([...tasks, { name, completed: false }]);
+  };
 
-      const result: PokemonData = await response.json();
-      const sprites: Sprite = result.sprites;
-      const { front_default, front_shiny } = sprites;
-      return { front_default, front_shiny };
-    } catch (error) {
-      console.error(error);
+  const handleToggleTask = async (index: number) => {
+    const updatedTasks = tasks.map((task, i) =>
+      i === index ? { ...task, completed: !task.completed } : task
+    );
+    setTasks(updatedTasks);
+    await storeTasks(updatedTasks);
+  };
+
+  const handleRemoveTask = async (index: number) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+    await storeTasks(updatedTasks);
+  };
+
+  const storeTasks = async (tasks: Task[]) => {
+    try {
+      const jsonValue = JSON.stringify(tasks);
+      await AsyncStorage.setItem(TASK, jsonValue);
+    } catch (e) {
+      // saving error
+      console.error("Error saving tasks:", e);
     }
-    return { front_default: null, front_shiny: null };
+  };
+
+  const getTasks = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(TASK);
+      return jsonValue != null ? JSON.parse(jsonValue) : [];
+    } catch (e) {
+      // error reading value
+      console.error("Error reading tasks:", e);
+      return [];
+    }
   };
 
   useEffect(() => {
     (async () => {
-      const pokemons = await fetchPokemons();
-      setPokemons(pokemons);
-
-      // Use Promise.all with map to maintain order and wait for all requests
-      const pokemonSprites = await Promise.all(
-        pokemons.map(async (pokemon, index) => {
-          const sprite = await fetchImagen(pokemon.name);
-          return sprite;
-        })
-      );
-
-      setSprites(pokemonSprites);
+      const storedTasks = await getTasks();
+      if (storedTasks.length > 0) {
+        setTasks(storedTasks);
+      }
     })();
   }, []);
 
-  useEffect(() => {
-    console.log(sprites.length);
-  }, [sprites]);
-
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      {sprites.map((sprite, index) => (
-        <View key={`ditto ${index}`} style={{ backgroundColor: "red" }}>
-          <Image source={sprite.front_shiny} style={styles.image} />
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* Tasks List */}
+        {tasks.map((task, index) => (
+          <View key={index} style={{ padding: 10, borderBottomWidth: 1 }}>
+            <Text>{task.name}</Text>
+            <Text>{`Is: ${taskStatus(task.completed)}`}</Text>
+            <Button
+              title={task.completed ? "Undo" : "Complete"}
+              onPress={() => handleToggleTask(index)}
+            />
+            <Button title="Remove" onPress={() => handleRemoveTask(index)} />
+          </View>
+        ))}
+
+        {/* Input for new tasks */}
+        <View style={{ marginTop: 20 }}>
+          <Text onPress={() => handleAddTask(`Task ${tasks.length + 1}`)}>
+            Add Task
+          </Text>
+          <TextInput
+            placeholder="Add New Task"
+            onSubmitEditing={(event) => handleAddTask(event.nativeEvent.text)}
+          />
         </View>
-      ))}
-    </ParallaxScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-  image: {
-    width: 120,
-    height: 120,
-  },
-});
